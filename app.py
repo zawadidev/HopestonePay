@@ -2,9 +2,10 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
+import os
 
 app = Flask(__name__)
-CORS(app)  # 🔥 THIS FIXES YOUR BUTTON ISSUE
+CORS(app)  # يسمح للفرونت اند بالاتصال بالباك اند
 
 # Database config
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
@@ -67,5 +68,7 @@ def login():
         return jsonify({"error": "Invalid credentials"}), 401
 
 
+# 🔥 IMPORTANT: Render dynamic port fix
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
