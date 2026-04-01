@@ -2,12 +2,16 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# Example in-memory wallets (replace with database later)
+# Example wallets (replace with database later)
 wallets = {
     "user1": {"balance": 1000, "savings": 0},
     "user2": {"balance": 500, "savings": 0},
 }
 company = {"revenue": 0}
+
+@app.route("/")
+def home():
+    return "HopestonePay backend is running!"
 
 @app.route("/send-money", methods=["POST"])
 def send_money():
@@ -53,3 +57,6 @@ def withdraw_savings():
         return jsonify({"message": "Savings withdrawn", "wallet": wallets[user]})
     else:
         return jsonify({"message": "Savings below withdrawal threshold", "wallet": wallets[user]})
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000)
