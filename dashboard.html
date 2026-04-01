@@ -1,82 +1,105 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>HopestonePay</title>
+    <title>Dashboard</title>
 </head>
-<body style="font-family: Arial; text-align:center; margin-top:50px;">
+<body>
 
-  <h2>HopestonePay 💰</h2>
+<h1>HopestonePay Dashboard</h1>
 
-  <!-- REGISTER -->
-  <div style="border:1px solid #ccc; padding:20px; width:300px; margin:auto;">
-    <h3>Register</h3>
+<p id="info"></p>
 
-    <input id="reg_phone" placeholder="Phone" /><br><br>
-    <input id="reg_name" placeholder="Name" /><br><br>
-    <input id="reg_email" placeholder="Email" /><br><br>
-    <input id="reg_password" type="password" placeholder="Password" /><br><br>
+<h3>Balance: <span id="balance"></span></h3>
+<h3>Savings: <span id="savings"></span></h3>
+<h3>Points: <span id="points"></span></h3>
 
-    <button onclick="registerUser()">Register</button>
-  </div>
+<hr>
 
-  <br>
+<input id="amount" placeholder="Amount">
+<input id="user2" placeholder="User (for send)">
 
-  <!-- LOGIN -->
-  <div style="border:1px solid #ccc; padding:20px; width:300px; margin:auto;">
-    <h3>Login</h3>
+<br><br>
 
-    <input id="log_phone" placeholder="Phone" /><br><br>
-    <input id="log_password" type="password" placeholder="Password" /><br><br>
+<button onclick="deposit()">Deposit</button>
+<button onclick="send()">Send</button>
+<button onclick="withdraw()">Withdraw</button>
+<button onclick="airtime()">Airtime</button>
+<button onclick="save()">Save</button>
+<button onclick="withdrawSavings()">Withdraw Savings</button>
 
-    <button onclick="loginUser()">Login</button>
-  </div>
+<hr>
 
-  <script>
-    // 🔴 YOUR REAL BACKEND (already correct from your screenshot)
-    const BASE_URL = "https://hopestonepay.onrender.com";
+<h3>Transactions</h3>
+<ul id="tx"></ul>
 
-    function registerUser() {
-      const phone = document.getElementById("reg_phone").value;
-      const name = document.getElementById("reg_name").value;
-      const email = document.getElementById("reg_email").value;
-      const password = document.getElementById("reg_password").value;
+<button onclick="logout()">Logout</button>
 
-      fetch(BASE_URL + "/register", {
+<script>
+const API = "https://hopestonepay.onrender.com";
+const username = localStorage.getItem("username");
+
+document.getElementById("info").innerText = "User: " + username;
+
+function load() {
+    fetch(API + "/dashboard/" + username)
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("balance").innerText = data.balance;
+        document.getElementById("savings").innerText = data.savings;
+        document.getElementById("points").innerText = data.points;
+
+        let tx = "";
+        data.transactions.forEach(t => {
+            tx += "<li>" + t + "</li>";
+        });
+        document.getElementById("tx").innerHTML = tx;
+    });
+}
+
+function deposit() {
+    action("/deposit", {username, amount: amount.value});
+}
+
+function send() {
+    action("/send", {from: username, to: user2.value, amount: amount.value});
+}
+
+function withdraw() {
+    action("/withdraw", {username, amount: amount.value});
+}
+
+function airtime() {
+    action("/airtime", {username, amount: amount.value});
+}
+
+function save() {
+    action("/save", {username, amount: amount.value});
+}
+
+function withdrawSavings() {
+    action("/withdraw_savings", {username});
+}
+
+function action(url, body) {
+    fetch(API + url, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ phone, name, email, password })
-      })
-      .then(res => res.json())
-      .then(data => {
-        alert(data.message);
-      })
-      .catch(err => {
-        alert("Error connecting backend");
-      });
-    }
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(body)
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message || data.error);
+        load();
+    });
+}
 
-    function loginUser() {
-      const phone = document.getElementById("log_phone").value;
-      const password = document.getElementById("log_password").value;
+function logout() {
+    localStorage.clear();
+    window.location.href = "index.html";
+}
 
-      fetch(BASE_URL + "/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ phone, password })
-      })
-      .then(res => res.json())
-      .then(data => {
-        alert(data.message);
-      })
-      .catch(err => {
-        alert("Error connecting backend");
-      });
-    }
-  </script>
+load();
+</script>
 
 </body>
 </html>
