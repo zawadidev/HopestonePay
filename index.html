@@ -32,7 +32,7 @@
   </div>
 
   <script>
-    const apiBase = "https://zawadiipay.onrender.com"; // Replace with your Render backend URL
+    const apiBase = "https://hopestonepay.onrender.com"; // Your Render backend URL
 
     document.getElementById("register-btn").addEventListener("click", async () => {
       const response = await fetch(apiBase + "/register", {
@@ -61,7 +61,6 @@
       const result = await response.json();
       if (result.message === "Login successful") {
         alert("Welcome " + document.getElementById("login-phone").value);
-        // Redirect to dashboard
         window.location.href = "dashboard.html";
       } else {
         alert(result.message);
