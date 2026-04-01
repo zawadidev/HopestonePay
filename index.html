@@ -1,87 +1,48 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>HopestonePay 💰</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-</head>
-<body class="bg-light">
-  <div class="container mt-4">
-    <h2 class="text-center mb-4">HopestonePay 💰</h2>
+<h3>Register</h3>
+<input id="reg-phone" placeholder="Phone">
+<input id="reg-name" placeholder="Name">
+<input id="reg-email" placeholder="Email">
+<input id="reg-password" type="password" placeholder="Password">
+<button onclick="register()">Register</button>
 
-    <!-- Balances -->
-    <div class="card mb-3">
-      <div class="card-body">
-        <h5>Main Balance: <span id="balance">Loading...</span></h5>
-        <h6>Savings Wallet: <span id="savings">Loading...</span></h6>
-        <div class="progress mt-2">
-          <div id="progress-bar" class="progress-bar bg-success"></div>
-        </div>
-        <p id="progress-text" class="mt-2"></p>
-        <button id="withdraw-btn" class="btn btn-primary mt-2" disabled>Withdraw Savings</button>
-      </div>
-    </div>
+<h3>Login</h3>
+<input id="login-phone" placeholder="Phone">
+<input id="login-password" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
 
-    <!-- Transaction Form -->
-    <div class="card">
-      <div class="card-body">
-        <h5>Send Money</h5>
-        <input id="receiver" class="form-control mb-2" placeholder="Receiver ID">
-        <input id="amount" class="form-control mb-2" placeholder="Amount (KSh)" type="number">
-        <button id="send-btn" class="btn btn-success">Send</button>
-      </div>
-    </div>
-  </div>
+<script>
+const apiBase = "https://zawadiipay.onrender.com"; // Replace with your Render URL
 
-  <script>
-    const apiBase = "https://zawadiipay.onrender.com"; // Replace with your Render URL
-    const user = "user1"; // Replace with logged-in user
+async function register() {
+  const response = await fetch(apiBase + "/register", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      phone: document.getElementById("reg-phone").value,
+      name: document.getElementById("reg-name").value,
+      email: document.getElementById("reg-email").value,
+      password: document.getElementById("reg-password").value
+    })
+  });
+  const result = await response.json();
+  alert(result.message);
+}
 
-    async function loadWallet() {
-      const response = await fetch(apiBase + "/withdraw-savings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user })
-      });
-      const data = await response.json();
-      const wallet = data.wallet || { balance: 0, savings: 0 };
-
-      document.getElementById("balance").textContent = "KSh " + wallet.balance;
-      document.getElementById("savings").textContent = "KSh " + wallet.savings;
-
-      const threshold = 5000;
-      const progress = (wallet.savings / threshold) * 100;
-      document.getElementById("progress-bar").style.width = progress + "%";
-      document.getElementById("progress-text").textContent =
-        progress.toFixed(1) + "% of KSh " + threshold + " goal";
-
-      document.getElementById("withdraw-btn").disabled = wallet.savings < threshold;
-    }
-
-    document.getElementById("withdraw-btn").addEventListener("click", async () => {
-      const response = await fetch(apiBase + "/withdraw-savings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user })
-      });
-      const result = await response.json();
-      alert(result.message);
-      loadWallet();
-    });
-
-    document.getElementById("send-btn").addEventListener("click", async () => {
-      const receiver = document.getElementById("receiver").value;
-      const amount = document.getElementById("amount").value;
-      const response = await fetch(apiBase + "/send-money", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sender: user, receiver, amount })
-      });
-      const result = await response.json();
-      alert(result.message);
-      loadWallet();
-    });
-
-    loadWallet();
-  </script>
-</body>
-</html>
+async function login() {
+  const response = await fetch(apiBase + "/login", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      phone: document.getElementById("login-phone").value,
+      password: document.getElementById("login-password").value
+    })
+  });
+  const result = await response.json();
+  if (result.message === "Login successful") {
+    alert("Welcome!");
+    window.location.href = "dashboard.html"; // Redirect to dashboard
+  } else {
+    alert(result.message);
+  }
+}
+</script>
