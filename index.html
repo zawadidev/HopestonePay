@@ -1,74 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HopestonePay</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            background: #0f172a;
-            color: white;
-            text-align: center;
-        }
-        header {
-            padding: 50px 20px;
-        }
-        h1 {
-            font-size: 40px;
-            color: #22c55e;
-        }
-        p {
-            font-size: 18px;
-            color: #cbd5f5;
-        }
-        .btn {
-            background: #22c55e;
-            color: white;
-            padding: 15px 25px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        section {
-            padding: 40px 20px;
-        }
-        .feature {
-            margin: 20px 0;
-        }
-    </style>
-</head>
-<body>
+<script>
+async function sendMoney() {
+  const response = await fetch("/send-money", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ sender: "user1", receiver: "user2", amount: 100 })
+  });
+  const result = await response.json();
+  console.log(result);
+}
 
-<header>
-    <h1>HopestonePay 💰</h1>
-    <p>Smart payments with automatic savings</p>
-    <button class="btn">Coming Soon</button>
-</header>
-
-<section>
-    <h2>🚀 Features</h2>
-    <div class="feature">Send & Receive Money</div>
-    <div class="feature">Automatic Savings on Every Transaction</div>
-    <div class="feature">Earn Rewards & Points</div>
-    <div class="feature">Withdraw Savings after KSh 5000</div>
-</section>
-
-<section>
-    <h2>💡 How it Works</h2>
-    <p>
-        Example: If you spend KSh 20,<br>
-        KSh 17 is used and KSh 3 is saved automatically.<br><br>
-        Save until KSh 5000 and withdraw anytime.
-    </p>
-</section>
-
-<section>
-    <h2>📞 Contact</h2>
-    <p>Email: hopestonepay@gmail.com</p>
-</section>
-
-</body>
-</html>
+async function withdrawSavings() {
+  const response = await fetch("/withdraw-savings", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ user: "user1" })
+  });
+  const result = await response.json();
+  console.log(result);
+}
+</script>
