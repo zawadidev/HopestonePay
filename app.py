@@ -1,23 +1,25 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)  # 🔥 THIS FIXES YOUR BUTTON ISSUE
 
-# Database config (SQLite for now)
+# Database config
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
-# User Model
+# User model
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
 
-# Create DB
+# Create database
 with app.app_context():
     db.create_all()
 
@@ -37,12 +39,10 @@ def register():
     if not username or not password:
         return jsonify({"error": "Missing data"}), 400
 
-    # Check if user exists
     existing_user = User.query.filter_by(username=username).first()
     if existing_user:
         return jsonify({"error": "User already exists"}), 400
 
-    # Hash password
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
     new_user = User(username=username, password=hashed_password)
@@ -50,7 +50,6 @@ def register():
     db.session.commit()
 
     return jsonify({"message": "User registered successfully"})
-
 
 # Login route
 @app.route("/login", methods=["POST"])
