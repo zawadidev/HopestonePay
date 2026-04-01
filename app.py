@@ -1,46 +1,55 @@
-from flask import Flask
-import requests
-import base64
-import os
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# Get keys from environment (set these on Render)
-CONSUMER_KEY = os.getenv"jAJ7Ud37RnflT0xAovWjaTwlKytCQ6r0F77bdCfNk5dYhkqI"
-CONSUMER_SECRET = os.getenv"CUIchCcAb1EyqKGHLYhXJHCrsjDGml4qvVMr7d9uq33XKIfuS31YzYqILloKcJDQ"
+# Example in-memory wallets (replace with database later)
+wallets = {
+    "user1": {"balance": 1000, "savings": 0},
+    "user2": {"balance": 500, "savings": 0},
+}
+company = {"revenue": 0}
 
-# Function to generate M-Pesa access token
-def get_access_token():
-    if not CONSUMER_KEY or not CONSUMER_SECRET:
-        return "Error: Missing CONSUMER_KEY or CONSUMER_SECRET"
+@app.route("/send-money", methods=["POST"])
+def send_money():
+    data = request.json
+    sender = data["sender"]
+    receiver = data["receiver"]
+    amount = float(data["amount"])
 
-    url = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
+    # Transaction fee (2%)
+    fee = amount * 0.02
+    company_share = fee / 2
+    savings_share = fee / 2
 
-    try:
-        credentials = f"{CONSUMER_KEY}:{CONSUMER_SECRET}"
-        encoded_credentials = base64.b64encode(credentials.encode()).decode()
+    # Deduct from sender
+    wallets[sender]["balance"] -= amount
 
-        headers = {
-            "Authorization": f"Basic {encoded_credentials}"
-        }
+    # Credit receiver (minus fee)
+    wallets[receiver]["balance"] += amount - fee
 
-        response = requests.get(url, headers=headers)
+    # Company revenue
+    company["revenue"] += company_share
 
-        return f"Status: {response.status_code}, Response: {response.text}"
+    # Add to sender’s savings
+    wallets[sender]["savings"] += savings_share
 
-    except Exception as e:
-        return f"Server Error: {str(e)}"
+    return jsonify({
+        "message": "Transaction successful",
+        "fee": fee,
+        "company_share": company_share,
+        "savings_added": savings_share,
+        "sender_wallet": wallets[sender],
+        "receiver_wallet": wallets[receiver]
+    })
 
-# Home route
-@app.route('/')
-def home():
-    return "HopestonePay API is running 🚀"
+@app.route("/withdraw-savings", methods=["POST"])
+def withdraw_savings():
+    data = request.json
+    user = data["user"]
 
-# Token route
-@app.route('/token')
-def token():
-    return get_access_token()
-
-# Run app
-if __name__ == '__main__':
-    app.run(debug=True)
+    if wallets[user]["savings"] >= 5000:
+        wallets[user]["balance"] += wallets[user]["savings"]
+        wallets[user]["savings"] = 0
+        return jsonify({"message": "Savings withdrawn", "wallet": wallets[user]})
+    else:
+        return jsonify({"message": "Savings below withdrawal threshold", "wallet": wallets[user]})
