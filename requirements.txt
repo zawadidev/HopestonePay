@@ -3,3 +3,5 @@ gunicorn
 requests
 werkzeug
 flask-cors
+flask-SQLAlchemy
+flask-Bcrypt
