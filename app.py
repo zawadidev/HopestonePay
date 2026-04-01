@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_cors import CORS
 import datetime
 
 app = Flask(__name__)
+CORS(app)  # allow frontend requests
 
 # In-memory "database"
 users = {}
