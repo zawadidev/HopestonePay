@@ -1,62 +1,49 @@
 from flask import Flask, request, jsonify
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
-# Example wallets (replace with database later)
-wallets = {
-    "user1": {"balance": 1000, "savings": 0},
-    "user2": {"balance": 500, "savings": 0},
-}
-company = {"revenue": 0}
+# Example in-memory "database" (replace with real DB later)
+users = {}
+wallets = {}
 
-@app.route("/")
-def home():
-    return "HopestonePay backend is running!"
-
-@app.route("/send-money", methods=["POST"])
-def send_money():
+@app.route("/register", methods=["POST"])
+def register():
     data = request.json
-    sender = data["sender"]
-    receiver = data["receiver"]
-    amount = float(data["amount"])
+    phone = data.get("phone")
+    name = data.get("name")
+    email = data.get("email")
+    password = data.get("password")
 
-    # Transaction fee (2%)
-    fee = amount * 0.02
-    company_share = fee / 2
-    savings_share = fee / 2
+    if phone in users:
+        return jsonify({"message": "User already exists"}), 400
 
-    # Deduct from sender
-    wallets[sender]["balance"] -= amount
+    # Hash password for security
+    password_hash = generate_password_hash(password)
 
-    # Credit receiver (minus fee)
-    wallets[receiver]["balance"] += amount - fee
+    # Save user
+    users[phone] = {
+        "name": name,
+        "email": email,
+        "password_hash": password_hash
+    }
 
-    # Company revenue
-    company["revenue"] += company_share
+    # Create wallet
+    wallets[phone] = {"balance": 0, "savings": 0, "points": 0}
 
-    # Add to sender’s savings
-    wallets[sender]["savings"] += savings_share
+    return jsonify({"message": "Registration successful", "user": users[phone]})
 
-    return jsonify({
-        "message": "Transaction successful",
-        "fee": fee,
-        "company_share": company_share,
-        "savings_added": savings_share,
-        "sender_wallet": wallets[sender],
-        "receiver_wallet": wallets[receiver]
-    })
-
-@app.route("/withdraw-savings", methods=["POST"])
-def withdraw_savings():
+@app.route("/login", methods=["POST"])
+def login():
     data = request.json
-    user = data["user"]
+    phone = data.get("phone")
+    password = data.get("password")
 
-    if wallets[user]["savings"] >= 5000:
-        wallets[user]["balance"] += wallets[user]["savings"]
-        wallets[user]["savings"] = 0
-        return jsonify({"message": "Savings withdrawn", "wallet": wallets[user]})
-    else:
-        return jsonify({"message": "Savings below withdrawal threshold", "wallet": wallets[user]})
+    user = users.get(phone)
+    if not user or not check_password_hash(user["password_hash"], password):
+        return jsonify({"message": "Invalid credentials"}), 401
+
+    return jsonify({"message": "Login successful", "wallet": wallets[phone]})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
