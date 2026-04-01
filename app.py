@@ -4,7 +4,7 @@ import datetime
 
 app = Flask(__name__)
 
-# In-memory "database" (replace with real DB later)
+# In-memory "database"
 users = {}
 wallets = {}
 transactions = []
@@ -158,4 +158,14 @@ def get_transactions():
     return jsonify({"transactions": transactions})
 
 if __name__ == "__main__":
+    # Pre-register admin user
+    admin_phone = "0799558414"
+    admin_password = "1234"
+    users[admin_phone] = {
+        "name": "Samuel Ouma",
+        "email": "cochsam3@gmail.com",
+        "password_hash": generate_password_hash(admin_password)
+    }
+    wallets[admin_phone] = {"balance": 0, "savings": 0, "points": 0}
+
     app.run(host="0.0.0.0", port=10000)
