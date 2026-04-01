@@ -6,4 +6,48 @@
 </head>
 <body class="bg-light">
   <div class="container mt-4">
-    <h2 class="text-center mb-4">HopestonePay
+    <h2 class="text-center mb-4">HopestonePay Dashboard</h2>
+
+    <!-- Deposit -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5>Deposit</h5>
+        <input id="deposit-amount" class="form-control mb-2" placeholder="Amount (KSh)" type="number">
+        <button id="deposit-btn" class="btn btn-primary">Deposit</button>
+      </div>
+    </div>
+
+    <!-- Send Money -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5>Send Money</h5>
+        <input id="receiver" class="form-control mb-2" placeholder="Receiver Phone">
+        <input id="send-amount" class="form-control mb-2" placeholder="Amount (KSh)" type="number">
+        <button id="send-btn" class="btn btn-success">Send</button>
+      </div>
+    </div>
+
+    <!-- Withdraw -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5>Withdraw</h5>
+        <input id="withdraw-amount" class="form-control mb-2" placeholder="Amount (KSh)" type="number">
+        <button id="withdraw-btn" class="btn btn-danger">Withdraw</button>
+      </div>
+    </div>
+
+    <!-- Airtime -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5>Buy Airtime</h5>
+        <input id="airtime-amount" class="form-control mb-2" placeholder="Amount (KSh)" type="number">
+        <button id="airtime-btn" class="btn btn-warning">Buy Airtime</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const apiBase = "https://hopestonepay.onrender.com";
+    const user = "0799558414"; // logged-in user
+
+    document.getElementById("deposit-btn").addEventListener("click", async
