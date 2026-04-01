@@ -32,7 +32,7 @@
   </div>
 
   <script>
-    // ✅ THIS IS THE ONLY LINE YOU CHANGE
+    // 🔴 YOUR REAL BACKEND (already correct from your screenshot)
     const BASE_URL = "https://hopestonepay.onrender.com";
 
     function registerUser() {
@@ -49,8 +49,12 @@
         body: JSON.stringify({ phone, name, email, password })
       })
       .then(res => res.json())
-      .then(data => alert("Registered: " + JSON.stringify(data)))
-      .catch(err => alert("Error connecting backend"));
+      .then(data => {
+        alert(data.message);
+      })
+      .catch(err => {
+        alert("Error connecting backend");
+      });
     }
 
     function loginUser() {
@@ -65,8 +69,12 @@
         body: JSON.stringify({ phone, password })
       })
       .then(res => res.json())
-      .then(data => alert("Login: " + JSON.stringify(data)))
-      .catch(err => alert("Error connecting backend"));
+      .then(data => {
+        alert(data.message);
+      })
+      .catch(err => {
+        alert("Error connecting backend");
+      });
     }
   </script>
 
