@@ -1,94 +1,82 @@
-from flask import Flask, request, jsonify
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_cors import CORS
-import datetime
+<!DOCTYPE html>
+<html>
+<head>
+  <title>HopestonePay</title>
+</head>
+<body style="font-family: Arial; text-align:center; margin-top:50px;">
 
-app = Flask(__name__)
-CORS(app)  # allow frontend requests
+  <h2>HopestonePay 💰</h2>
 
-# In-memory "database"
-users = {}
-wallets = {}
-transactions = []
+  <!-- REGISTER -->
+  <div style="border:1px solid #ccc; padding:20px; width:300px; margin:auto;">
+    <h3>Register</h3>
 
-@app.route("/register", methods=["POST"])
-def register():
-    data = request.json
-    phone = data.get("phone")
-    name = data.get("name")
-    email = data.get("email")
-    password = data.get("password")
+    <input id="reg_phone" placeholder="Phone" /><br><br>
+    <input id="reg_name" placeholder="Name" /><br><br>
+    <input id="reg_email" placeholder="Email" /><br><br>
+    <input id="reg_password" type="password" placeholder="Password" /><br><br>
 
-    if phone in users:
-        return jsonify({"message": "User already exists"}), 400
+    <button onclick="registerUser()">Register</button>
+  </div>
 
-    password_hash = generate_password_hash(password)
-    users[phone] = {"name": name, "email": email, "password_hash": password_hash}
-    wallets[phone] = {"balance": 0, "savings": 0, "points": 0}
+  <br>
 
-    return jsonify({"message": "Registration successful"})
+  <!-- LOGIN -->
+  <div style="border:1px solid #ccc; padding:20px; width:300px; margin:auto;">
+    <h3>Login</h3>
 
-@app.route("/login", methods=["POST"])
-def login():
-    data = request.json
-    phone = data.get("phone")
-    password = data.get("password")
+    <input id="log_phone" placeholder="Phone" /><br><br>
+    <input id="log_password" type="password" placeholder="Password" /><br><br>
 
-    user = users.get(phone)
-    if not user or not check_password_hash(user["password_hash"], password):
-        return jsonify({"message": "Invalid credentials"}), 401
+    <button onclick="loginUser()">Login</button>
+  </div>
 
-    return jsonify({"message": "Login successful", "wallet": wallets[phone]})
+  <script>
+    // 🔴 YOUR REAL BACKEND (already correct from your screenshot)
+    const BASE_URL = "https://hopestonepay.onrender.com";
 
-# Example wallet actions (deposit, withdraw, send, airtime)
-@app.route("/deposit", methods=["POST"])
-def deposit():
-    data = request.json
-    phone = data.get("phone")
-    amount = float(data.get("amount"))
-    wallets[phone]["balance"] += amount
-    return jsonify({"message": "Deposit successful", "wallet": wallets[phone]})
+    function registerUser() {
+      const phone = document.getElementById("reg_phone").value;
+      const name = document.getElementById("reg_name").value;
+      const email = document.getElementById("reg_email").value;
+      const password = document.getElementById("reg_password").value;
 
-@app.route("/withdraw", methods=["POST"])
-def withdraw():
-    data = request.json
-    phone = data.get("phone")
-    amount = float(data.get("amount"))
-    if wallets[phone]["balance"] < amount:
-        return jsonify({"message": "Insufficient funds"}), 400
-    wallets[phone]["balance"] -= amount
-    return jsonify({"message": "Withdraw successful", "wallet": wallets[phone]})
-
-@app.route("/send-money", methods=["POST"])
-def send_money():
-    data = request.json
-    sender = data.get("sender")
-    receiver = data.get("receiver")
-    amount = float(data.get("amount"))
-    if wallets[sender]["balance"] < amount:
-        return jsonify({"message": "Insufficient funds"}), 400
-    wallets[sender]["balance"] -= amount
-    wallets[receiver]["balance"] += amount
-    return jsonify({"message": "Transaction successful"})
-
-@app.route("/airtime", methods=["POST"])
-def airtime():
-    data = request.json
-    phone = data.get("phone")
-    amount = float(data.get("amount"))
-    if wallets[phone]["balance"] < amount:
-        return jsonify({"message": "Insufficient funds"}), 400
-    wallets[phone]["balance"] -= amount
-    return jsonify({"message": "Airtime purchase successful", "wallet": wallets[phone]})
-
-if __name__ == "__main__":
-    # Pre-register admin user
-    admin_phone = "0799558414"
-    admin_password = "1234"
-    users[admin_phone] = {
-        "name": "Samuel Ouma",
-        "email": "cochsam3@gmail.com",
-        "password_hash": generate_password_hash(admin_password)
+      fetch(BASE_URL + "/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ phone, name, email, password })
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message);
+      })
+      .catch(err => {
+        alert("Error connecting backend");
+      });
     }
-    wallets[admin_phone] = {"balance": 0, "savings": 0, "points": 0}
-    app.run(host="0.0.0.0", port=10000)
+
+    function loginUser() {
+      const phone = document.getElementById("log_phone").value;
+      const password = document.getElementById("log_password").value;
+
+      fetch(BASE_URL + "/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ phone, password })
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message);
+      })
+      .catch(err => {
+        alert("Error connecting backend");
+      });
+    }
+  </script>
+
+</body>
+</html>
